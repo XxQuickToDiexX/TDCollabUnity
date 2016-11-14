@@ -68,4 +68,19 @@ public class Enemy : MonoBehaviour {
 	void ReachedLastNode() {
 		Destroy(gameObject);
 	}
+
+	public void TakeDamage(float damage)
+	{
+		health -= damage;
+
+		if (health <= 0)
+		{
+			Death();
+		}
+	}
+
+	public void Death()
+	{
+		Destroy (gameObject);
+	}
 }

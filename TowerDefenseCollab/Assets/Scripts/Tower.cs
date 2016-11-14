@@ -5,6 +5,12 @@ public class Tower : MonoBehaviour
 {
 	Transform tower;
 
+	public GameObject bulletPrefab;
+
+	public float fireCooldown = 1.0f;
+	public float cooldownRemaining = 0;
+	float range = 10f;
+
 	void Start () 
 	{
 		tower = this.transform; // Get the turret
@@ -26,27 +32,35 @@ public class Tower : MonoBehaviour
 				nearestEnemy = e;
 				distance = dist;
 			} 
-			else if (nearestEnemy == null) 
-			{
-				Debug.Log ("No Enemies");
-				return;
-			}
 		}
 
-		if (nearestEnemy != null)
+		if (nearestEnemy == null) 
 		{
-			LookToEnemy(nearestEnemy);
+			Debug.Log ("No Enemies");
+			return;
 		}
-
-	}
-
-	void LookToEnemy(Enemy e)
-	{
-		//Make vector from enemy to tower
-		Vector3 direction = e.transform.position - this.transform.position;
+			
+		Vector3 direction = nearestEnemy.transform.position - this.transform.position;
 
 		//Rotate to look at the enemy
 		Quaternion lookRotation = Quaternion.LookRotation (direction);
 		tower.rotation = Quaternion.Euler (0, lookRotation.eulerAngles.y, 0);
+
+		cooldownRemaining -= Time.deltaTime;
+
+		if (cooldownRemaining <= 0 && direction.magnitude <= range) 
+		{
+			cooldownRemaining = fireCooldown;
+			Shoot(nearestEnemy);
+		}
+
+	}
+
+	void Shoot(Enemy e)
+	{
+		GameObject bullet = (GameObject)Instantiate (bulletPrefab, this.transform.position, this.transform.rotation);
+
+		Bullet b = bullet.GetComponent <Bullet> ();
+		b.target = e.transform;
 	}
 }
